@@ -10,8 +10,6 @@ app.log = function(smth) {
   console.log(smth);
 };
 
-app.listener = new AudioListener();
-
 app.loadLevel = function(levelName) {
   var level = app.levels[levelName];
   if(!level || !level.snippets) {
@@ -51,22 +49,25 @@ app.sayNo = function() {
   app.log('NOOOOOO!');
 };
 
+app.checkSnip = function(snip) {
+  snip = snip.trim().toLowerCase();
+  app.log(snip);
+  if($.inArray(snip, app.snippets[app.snipN].say.split(',')) > -1) {
+    app.goToNextSnip();
+    app.changeScore(1);
+  } else if ($.inArray(snip, ['skip', 'next', 'i don\'t know', 'don\'t know']) > -1) {
+    app.goToNextSnip();
+  } else {
+    app.sayNo();
+  }
+};
+
 app.init = function() {
   app.log('Let\'s get started.');
+  app.recognition = app.loadListener();
+  app.recognition.start();
   app.loadLevel('alphabet');
-  app.loadSnip(app.snipN);
-  app.listener.listen('en', function(text) {
-    text = text.trim().toLowerCase();
-    app.log(text);
-    if($.inArray(text, app.snippets[app.snipN].say.split(',')) > -1) {
-      app.goToNextSnip();
-      app.changeScore(1);
-    } else if (text == 'skip' || text == 'next') {
-      app.goToNextSnip();
-    } else {
-      app.sayNo();
-    }
-  });
+  app.loadSnip(app.snipN);  
 };
 
 //blast
